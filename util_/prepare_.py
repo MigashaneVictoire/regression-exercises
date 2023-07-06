@@ -40,6 +40,18 @@ def wrangle_zillow() -> pd.DataFrame:
     # convert data type from float to int
     zillow.bedroomcnt = zillow.bedroomcnt.astype(int)
     zillow.yearbuilt = zillow.yearbuilt.astype(int)
+    
+    # rename dataframe columns
+    zillow = zillow.rename(columns={"bedroomcnt":"bedrooms",
+                           "bathroomcnt":"bathrooms",
+                           "calculatedfinishedsquarefeet":"sqr_feet",
+                          "taxvaluedollarcnt":"tax_value",
+                          "yearbuilt":"year_built",
+                          "taxamount":"tax_amount",
+                          "fips":"county"})
+
+    # remove duplicates
+    zillow = zillow.drop_duplicates(keep="first")
 
     return zillow
 # -----------------------------------------------------------------

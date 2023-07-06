@@ -15,8 +15,8 @@ import os
 # Personal libraries
 import env
 
-# Caching files
-# -----------------------------------------------------------------
+################### CACHING FILE ##############################################
+
 # Remove encoding while loading csv data to python
 def catch_encoding_errors_(fileName:str) -> pd.DataFrame:
     
@@ -38,47 +38,10 @@ def catch_encoding_errors_(fileName:str) -> pd.DataFrame:
         except UnicodeDecodeError:
             print(f"Failed to decode with {encoding} encoding.")
     return df
+        
 
-# get existing file in current directory
-def get_existing_csv_file_(fileName:str) -> pd.DataFrame:
-    """
-    parameters:
-        fileName: csv file name. Should look like (file.csv)
-    return:
-        file dataframe with no encoding errors after cheking for existance of file (in current directory)
-    """
-    if os.path.isfile(fileName):
-        return catch_encoding_errors_(fileName)
-    else:
-        userInput= input(f"Would you like to look in codeup database... (y/n)")
+################### GET NON-EXISTING FILE ##############################################
 
-        if userInput.lower() in ["n", "no"]:
-            print("Exit complete...!")
-        else:
-            db_input = input("Enter database name? \m")
-            table_input = input("Enter table name? \n")
-
-            userInput = input("Do you have a custom query or you want the entire table? (q/t)\n")
-
-            if userInput.lower() in ["t", "table"]:
-                return get_codeup_sql_data_(db_name=db_input, table_name=table_input)
-            
-            # else get the data from the codeup server and save it to the current directory
-            else:
-                # read the SQL query from codeup database
-                query_input= input("Enter query? \n")
-                df, query_out =  get_codeup_sql_data_(db_name=db_input, table_name=table_input, query=query_input)
-
-                # Write that dataframe to disk for later. Called "caching" the data for later.
-                df.to_csv(fileName)
-
-                # Return the dataframe to the calling code
-                return df, query_out
-
-
-# Data acquisition
-# -----------------------------------------------------------------
-# -----------------------------------------------------------------
 # get data from codeup data sql database
 def get_codeup_sql_data_(db_name: str, table_name: str = None, query: str= None, fileName="UnamedFile") -> Tuple[pd.DataFrame, str]:
     """
@@ -106,7 +69,25 @@ def get_codeup_sql_data_(db_name: str, table_name: str = None, query: str= None,
         data = pd.read_sql(query, env.get_db_access(db_name))
         
     # Write that dataframe to disk for later. Called "caching" the data for later.
-    data.to_csv(f"{fileName}.csv")
+    data.to_csv(f"{fileName}.csv", mode= "w")
 
     return data, query # return both the data and the query
 
+################### GET EXISTING FILE ##############################################
+
+# get existing file in current directory
+def get_existing_csv_file_(fileName:str, db_name: str= None, table_name: str = None, query: str= None) -> pd.DataFrame:
+    """
+    parameters:
+        fileName: csv file name. Should look like (file)
+        db_name: name of the database you wich to access
+        table_name: name of table you are quering from
+        query: (optional argument) the query you want to retrieve
+    return:
+        file dataframe with no encoding errors after cheking for existance of file (in current directory)
+    """
+    if os.path.isfile(fileName):
+        return catch_encoding_errors_(fileName)
+    else:
+        print("Getting data from Codeup database...!")
+        return get_codeup_sql_data_(db_name=db_name, table_name=table_name, query=query, fileName=fileName)

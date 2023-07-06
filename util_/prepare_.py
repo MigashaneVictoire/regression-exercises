@@ -32,7 +32,7 @@ def wrangle_zillow() -> pd.DataFrame:
     """
 
     # get existing csv data from the util directory
-    zillow = acquire_.get_existing_csv_file_(fileName ="zillow_single_family.csv")
+    zillow = acquire_.get_existing_csv_file_(fileName ="zillow_single_family")
 
     # drop all nulls in the dataframe
     zillow = zillow.dropna()

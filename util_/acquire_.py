@@ -33,7 +33,7 @@ def catch_encoding_errors_(fileName:str) -> pd.DataFrame:
     # check encodings and return dataframe
     for encoding in encodings:
         try:
-            df = pd.read_csv(fileName, encoding=encoding)
+            df = pd.read_csv(fileName, encoding=encoding, index_col=0)
             break
         except UnicodeDecodeError:
             print(f"Failed to decode with {encoding} encoding.")
@@ -64,12 +64,16 @@ def get_codeup_sql_data_(db_name: str, table_name: str = None, query: str= None,
             """
         # access the database and retreive the data
         data = pd.read_sql(query, env.get_db_access(db_name))
+
+        # Write that dataframe to disk for later. Called "caching" the data for later.
+        data.to_csv(f"{fileName}.csv", mode= "w")
+
     elif query:
         # access the database and retreive the data
         data = pd.read_sql(query, env.get_db_access(db_name))
-        
-    # Write that dataframe to disk for later. Called "caching" the data for later.
-    data.to_csv(f"{fileName}.csv", mode= "w")
+    
+        # Write that dataframe to disk for later. Called "caching" the data for later.
+        data.to_csv(f"{fileName}.csv", mode= "w")
 
     return data, query # return both the data and the query
 
@@ -86,8 +90,9 @@ def get_existing_csv_file_(fileName:str, db_name: str= None, table_name: str = N
     return:
         file dataframe with no encoding errors after cheking for existance of file (in current directory)
     """
-    if os.path.isfile(fileName):
-        return catch_encoding_errors_(fileName)
+    if os.path.isfile(f"{fileName}.csv"):
+        return catch_encoding_errors_(f"{fileName}.csv")
     else:
         print("Getting data from Codeup database...!")
-        return get_codeup_sql_data_(db_name=db_name, table_name=table_name, query=query, fileName=fileName)
+        data, query= get_codeup_sql_data_(db_name=db_name, query=query, fileName=fileName)
+        return data

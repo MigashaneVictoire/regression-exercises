@@ -34,25 +34,25 @@ def wrangle_zillow() -> pd.DataFrame:
     # get existing csv data from the util directory
     zillow = acquire_.get_existing_csv_file_(fileName ="zillow_single_family")
 
+    # rename dataframe columns
+    zillow = zillow.rename(columns={"bedroomcnt":"bedrooms",
+                        "bathroomcnt":"bathrooms",
+                        "calculatedfinishedsquarefeet":"sqr_feet",
+                        "taxvaluedollarcnt":"tax_value",
+                        "yearbuilt":"year_built",
+                        "taxamount":"tax_amount",
+                        "fips":"county"})
+
     # drop all nulls in the dataframe
     zillow = zillow.dropna()
 
     # convert data type from float to int
-    zillow.bedroomcnt = zillow.bedroomcnt.astype(int)
-    zillow.yearbuilt = zillow.yearbuilt.astype(int)
-    
-    # rename dataframe columns
-    zillow = zillow.rename(columns={"bedroomcnt":"bedrooms",
-                           "bathroomcnt":"bathrooms",
-                           "calculatedfinishedsquarefeet":"sqr_feet",
-                          "taxvaluedollarcnt":"tax_value",
-                          "yearbuilt":"year_built",
-                          "taxamount":"tax_amount",
-                          "fips":"county"})
+    zillow.bedroomcnt = zillow.bedrooms.astype(int)
+    zillow.yearbuilt = zillow.year_built.astype(int)
 
-    # remove duplicates
+    # remove the duplocated rows
     zillow = zillow.drop_duplicates(keep="first")
-
+    
     return zillow
 # -----------------------------------------------------------------
 # Split the data into train, validate and train

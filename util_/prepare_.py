@@ -14,6 +14,9 @@ from sklearn.model_selection import train_test_split
 import acquire_
 import env
 
+# set a default them for all my visuals
+sns.set_theme(style="whitegrid")
+
 def wrangle_zillow() -> pd.DataFrame:
     """
     return the prepared 2017 single family data
@@ -47,13 +50,85 @@ def wrangle_zillow() -> pd.DataFrame:
     zillow = zillow.dropna()
 
     # convert data type from float to int
-    zillow.bedroomcnt = zillow.bedrooms.astype(int)
-    zillow.yearbuilt = zillow.year_built.astype(int)
+    zillow.bedrooms = zillow.bedrooms.astype(int)
+    zillow.year_built = zillow.year_built.astype(int)
 
     # remove the duplocated rows
     zillow = zillow.drop_duplicates(keep="first")
+
+    # remove outliers
+    zillow = zillow[zillow.bedrooms <= 7]
+    zillow = zillow[zillow.bathrooms <= 7]
+    zillow = zillow[zillow.year_built >= 1900]
+    zillow = zillow[zillow.sqr_feet <= 5000]
+    zillow = zillow[zillow.tax_amount <= 20000]
     
     return zillow
+
+
+#---------------------------------------------------------------
+# Save visuals
+def save_visuals(fig: plt.figure ,viz_name:str= "unamed_viz", folder_name:int= 0, ) -> str:
+    """
+    Goal: Save a single visual into the project visual folder
+    parameters:
+        fig: seaborn visual figure to be saved
+        viz_name: name of the visual to save
+        folder_name: interger (0-7)represanting the section you are on in the pipeline
+            0: all other (defealt)
+            1: univariate stats
+            2: bivariate stats
+            3: multivariate stats
+            4: stats test
+            5: modeling
+            6: final report
+            7: presantation
+    return:
+        message to user on save status
+    """
+    project_visuals = "./00_project_visuals"
+    folder_selection = {
+        0: "00_non_specific_viz",
+        1: "01_univariate_stats_viz",
+        2: "02_bivariate_stats_viz",
+        3: "03_multivariate_stats_viz",
+        4: "04_stats_test_viz",
+        5: "05_modeling_viz",
+        6: "06_final_report_viz",
+        7: "07_presantation"
+    }
+
+    # return error if user input for folder selection is not found
+    if folder_name not in list(folder_selection.keys()):
+        return f"{folder_name} is not a valid option for a folder name."
+    # when folder location is found in selections
+    else:
+        # Specify the path to the directory where you want to save the figure
+        folder_name = folder_selection[folder_name]
+        directory_path = f'{project_visuals}/{folder_name}/'
+
+        # Create the full file path by combining the directory path and the desired file name
+        file_path = os.path.join(directory_path, f'{viz_name}.png')
+
+        if os.path.exists(project_visuals): # check if the main viz folder exists
+            if not os.path.exists(directory_path): # check if the folder name already exists
+                os.makedirs(directory_path)
+                # Save the figure to the specified file path
+                fig.canvas.print_figure(file_path)
+
+            else:
+                # Save the figure to the specified file path
+                fig.canvas.print_figure(file_path)
+        else:
+            # create both the project vis folder and the specific section folder
+            os.makedirs(project_visuals)
+            os.makedirs(directory_path)
+
+            # Save the figure to the specified file path
+            fig.canvas.print_figure(file_path)
+    
+    return f"Visual successfully saved in folder: {folder_name}"
+
 # -----------------------------------------------------------------
 # Split the data into train, validate and train
 def split_data_(df: pd.DataFrame, test_size: float =.2, validate_size: float =.2, stratify_col: str =None, random_state: int=95) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:

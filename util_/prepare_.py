@@ -9,6 +9,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 from sklearn.model_selection import train_test_split
+import os
 
 # Personal libraries
 import acquire_
@@ -131,6 +132,50 @@ def save_visuals(fig: plt.figure ,viz_name:str= "unamed_viz", folder_name:int= 0
             fig.canvas.print_figure(file_path)
     
     return f"Visual successfully saved in folder: {folder_name}"
+
+# -----------------------------------------------------------------
+# Save the splited data into separate csv files
+def save_split_data(encoded_df: pd.DataFrame, train:pd.DataFrame, validate:pd.DataFrame, test:pd.DataFrame, folder_path: str = "./project_data") -> str:
+    """
+    parameters:
+        encoded_df: full project dataframe that contains the (encoded columns or scalling)
+        train: training data set that has been split from the original
+        validate: validation data set that has been split from the original
+        test: testing data set that has been split from the original
+        folder_path: folder path where to save the data sets
+    return:
+        string to show succes of saving the data
+    """
+    # create new folder if folder don't aready exist
+    if not os.path.exists(folder_path):
+        os.makedirs(folder_path)
+        # save the dataframe with dummies in a csv for easy access
+        encoded_df.to_csv(f"./{folder_path}/encoded_data.csv", mode="w")
+
+        # save training data
+        train.to_csv(f"./{folder_path}/training_data.csv", mode="w")
+
+        # save validate
+        validate.to_csv(f"./{folder_path}/validation_data.csv", mode="w")
+
+        # Save test
+        test.to_csv(f"./{folder_path}/testing_data.csv", mode="w")
+
+    else:
+        # save the dataframe with dummies in a csv for easy access
+        encoded_df.to_csv(f"./{folder_path}/encoded_data.csv", mode="w")
+
+        # save training data
+        train.to_csv(f"./{folder_path}/training_data.csv", mode="w")
+
+        # save validate
+        validate.to_csv(f"./{folder_path}/validation_data.csv", mode="w")
+
+        # Save test
+        test.to_csv(f"./{folder_path}/testing_data.csv", mode="w")
+
+    return "Four data sets saved as .csv"
+
 
 # -----------------------------------------------------------------
 # Split the data into train, validate and train

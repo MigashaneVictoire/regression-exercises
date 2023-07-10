@@ -62,6 +62,9 @@ def wrangle_zillow() -> pd.DataFrame:
     zillow = zillow[zillow.year_built >= 1900]
     zillow = zillow[zillow.sqr_feet <= 5000]
     zillow = zillow[zillow.tax_amount <= 20000]
+
+    # Rename the unique values in fips to county names
+    zillow.county = zillow.county.astype(str).str.replace("6037.0","Los Angeles", regex=False).str.replace("6059.0","Orange", regex=False).str.replace("6111.0","Sam Juan", regex=False)
     
     return zillow
 
